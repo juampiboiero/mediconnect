@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Estudios Médicos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-upload-area.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .file-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .file-preview {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .file-type {
+            width: 100%;
+            height: 100px;
+            background: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .file-name {
+            padding: 8px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 0.8rem;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .remove-file {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .message-container {
+            margin: 20px 0;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #dc3545;
+        }
+
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .studies-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .studies-count {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .studies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .study-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .study-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .patient-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .patient-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .study-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .study-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .observations {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .files-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 15px;
+        }
+
+        .files-count {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .file-thumbnails {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .file-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .file-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .file-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-thumb.pdf {
+            background: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .close-modal:hover {
+            color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .studies-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Sistema de Gestión de Estudios Médicos</h1>
+            <p>Gestión integral de estudios médicos y archivos de pacientes</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('form')">➕ Nuevo Estudio</button>
+            <button class="tab" onclick="switchTab('list')">📁 Ver Estudios</button>
+        </div>
+
+        <div class="content">
+            <!-- Formulario de Nuevo Estudio -->
+            <div id="formSection" class="form-section active">
+                <form id="studyForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Paciente</label>
+                            <input type="text" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido del Paciente</label>
+                            <input type="text" id="apellido" name="apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edad">Edad</label>
+                            <input type="number" id="edad" name="edad" min="0" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoEstudio">Tipo de Estudio</label>
+                            <select id="tipoEstudio" name="tipoEstudio" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="Radiografía">Radiografía</option>
+                                <option value="Tomografía">Tomografía</option>
+                                <option value="Resonancia Magnética">Resonancia Magnética</option>
+                                <option value="Ecografía">Ecografía</option>
+                                <option value="Mamografía">Mamografía</option>
+                                <option value="Densitometría">Densitometría</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha">Fecha del Estudio</label>
+                            <input type="date" id="fecha" name="fecha" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" rows="4" placeholder="Observaciones adicionales sobre el estudio..."></textarea>
+                    </div>
+
+                    <div class="file-upload-area" id="fileUpload">
+                        <div class="upload-icon">📁</div>
+                        <h3>Cargar Archivos</h3>
+                        <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                        <p><small>Formatos admitidos: JPG, PNG, PDF (máximo 10 archivos)</small></p>
+                        <input type="file" id="archivos" multiple accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                    </div>
+
+                    <div id="filePreviews" class="file-previews"></div>
+
+                    <div id="message-container" class="message-container"></div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="submit" class="btn btn-primary">💾 Guardar Estudio</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()" style="margin-left: 15px;">🔄 Limpiar Formulario</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Estudios -->
+            <div id="listSection" class="form-section">
+                <div class="filters">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">🔍 Filtros de Búsqueda</h3>
+                    <div class="filters-grid">
+                        <div class="form-group">
+                            <label for="filterTipo">Tipo de Estudio</label>
+                            <select id="filterTipo">
+                                <option value="">Todos los tipos</option>
+                                <option value="Radiografía">Radiografía</option>
+                                <option value="Tomografía">Tomografía</option>
+                                <option value="Resonancia Magnética">Resonancia Magnética</option>
+                                <option value="Ecografía">Ecografía</option>
+                                <option value="Mamografía">Mamografía</option>
+                                <option value="Densitometría">Densitometría</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterFechaDesde">Fecha Desde</label>
+                            <input type="date" id="filterFechaDesde">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterFechaHasta">Fecha Hasta</label>
+                            <input type="date" id="filterFechaHasta">
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" onclick="clearFilters()" style="width: 100%;">🗑️ Limpiar Filtros</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="studies-header">
+                    <h3 style="color: #2c3e50;">📊 Estudios Registrados</h3>
+                    <div id="studiesCount" class="studies-count">0 estudio(s) encontrado(s)</div>
+                </div>
+
+                <div id="studiesGrid" class="studies-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Vista Previa -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Vista Previa</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody" class="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos simulada en memoria (sin localStorage)
+        let estudiosDB = [];
+        let currentFiles = [];
+        let currentView = 'form';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadStudies();
+            setTodayDate();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('studyForm').addEventListener('submit', handleSubmit);
+
+            const fileUpload = document.getElementById('fileUpload');
+            const fileInput = document.getElementById('archivos');
+
+            fileUpload.addEventListener('click', () => fileInput.click());
+            fileUpload.addEventListener('dragover', handleDragOver);
+            fileUpload.addEventListener('dragleave', handleDragLeave);
+            fileUpload.addEventListener('drop', handleDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+
+            document.getElementById('filterTipo').addEventListener('change', filterStudies);
+            document.getElementById('filterFechaDesde').addEventListener('change', filterStudies);
+            document.getElementById('filterFechaHasta').addEventListener('change', filterStudies);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+        }
+
+        function switchTab(tab) {
+            // Actualizar tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            // Actualizar secciones
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            
+            if (tab === 'form') {
+                document.getElementById('formSection').classList.add('active');
+            } else {
+                document.getElementById('listSection').classList.add('active');
+                loadStudies();
+            }
+            
+            currentView = tab;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+
+        function processFiles(files) {
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            const validFiles = files.filter(file => validTypes.includes(file.type));
+
+            if (currentFiles.length + validFiles.length > 10) {
+                showMessage('Máximo 10 archivos permitidos.', 'error');
+                return;
+            }
+
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        content: e.target.result
+                    };
+                    currentFiles.push(fileData);
+                    displayFilePreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function displayFilePreviews() {
+            const container = document.getElementById('filePreviews');
+            container.innerHTML = '';
+
+            currentFiles.forEach((fileData, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'file-preview';
+
+                if (fileData.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = fileData.content;
+                    preview.appendChild(img);
+                } else {
+                    const fileType = document.createElement('div');
+                    fileType.className = 'file-type';
+                    fileType.textContent = 'PDF';
+                    preview.appendChild(fileType);
+                }
+
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = fileData.name;
+                preview.appendChild(fileName);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-file';
+                removeBtn.innerHTML = '×';
+                removeBtn.onclick = () => removeFile(index);
+                preview.appendChild(removeBtn);
+
+                container.appendChild(preview);
+            });
+        }
+
+        function removeFile(index) {
+            currentFiles.splice(index, 1);
+            displayFilePreviews();
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            if (currentFiles.length === 0) {
+                showMessage('Debe seleccionar al menos un archivo.', 'error');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const estudio = {
+                id: Date.now(),
+                nombre: formData.get('nombre'),
+                apellido: formData.get('apellido'),
+                edad: formData.get('edad'),
+                tipoEstudio: formData.get('tipoEstudio'),
+                fecha: formData.get('fecha'),
+                observaciones: formData.get('observaciones') || 'Sin observaciones',
+                archivos: currentFiles,
+            };
+
+            estudiosDB.push(estudio);
+            showMessage('Estudio cargado exitosamente.', 'success');
+            resetForm();
+            
+            // Si estamos en la vista de lista, actualizar
+            if (currentView === 'list') {
+                loadStudies();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('studyForm').reset();
+            currentFiles = [];
+            displayFilePreviews();
+            setTodayDate();
+        }
+
+        function showMessage(text, type) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="${type}-message">${text}</div>`;
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        function loadStudies() {
+            const grid = document.getElementById('studiesGrid');
+            const filteredStudies = getFilteredStudies();
+
+            grid.innerHTML = '';
+
+            if (filteredStudies.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #6c757d; font-size: 1.2rem;"><div style="font-size: 3rem; margin-bottom: 20px;">📋</div>No se encontraron estudios.<br><small>Agrega un nuevo estudio desde la pestaña "Nuevo Estudio"</small></div>';
+            } else {
+                filteredStudies.forEach(estudio => {
+                    const card = document.createElement('div');
+                    card.className = 'study-card';
+
+                    const cardHeader = `<div class="card-header">
+                        <div class="patient-info">
+                            <h3>${estudio.nombre} ${estudio.apellido}</h3>
+                            <div class="patient-details">Edad: ${estudio.edad} años</div>
+                        </div>
+                        <div class="study-type">${estudio.tipoEstudio}</div>
+                    </div>`;
+
+                    const cardDate = `<div class="study-date">📅 Fecha: ${formatDate(estudio.fecha)}</div>`;
+                    const observations = `<div class="observations">💭 ${estudio.observaciones}</div>`;
+
+                    const thumbnails = estudio.archivos.map((file, index) => {
+                        if (file.type.startsWith('image/')) {
+                            return `<div class="file-thumb" onclick="openModal('${file.content}', false, '${file.name}')"><img src="${file.content}"/></div>`;
+                        } else {
+                            return `<div class="file-thumb pdf" onclick="openModal('${file.content}', true, '${file.name}')">PDF</div>`;
+                        }
+                    }).join('');
+
+                    const filesSection = `<div class="files-section">
+                        <div class="files-count">📎 ${estudio.archivos.length} archivo(s)</div>
+                        <div class="file-thumbnails">${thumbnails}</div>
+                    </div>`;
+
+                    card.innerHTML = cardHeader + cardDate + observations + filesSection;
+                    grid.appendChild(card);
+                });
+            }
+
+            updateStudiesCount(filteredStudies.length);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function getFilteredStudies() {
+            const tipo = document.getElementById('filterTipo').value;
+            const desde = document.getElementById('filterFechaDesde').value;
+            const hasta = document.getElementById('filterFechaHasta').value;
+
+            return estudiosDB.filter(estudio => {
+                let match = true;
+                if (tipo && estudio.tipoEstudio !== tipo) match = false;
+                if (desde && estudio.fecha < desde) match = false;
+                if (hasta && estudio.fecha > hasta) match = false;
+                return match;
+            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Ordenar por fecha descendente
+        }
+
+        function filterStudies() {
+            loadStudies();
+        }
+
+        function updateStudiesCount(count) {
+            document.getElementById('studiesCount').textContent = `${count} estudio(s) encontrado(s)`;
+        }
+
+        function clearFilters() {
+            document.getElementById('filterTipo').value = '';
+            document.getElementById('filterFechaDesde').value = '';
+            document.getElementById('filterFechaHasta').value = '';
+            loadStudies();
+        }
+
+        function openModal(content, isPDF = false, fileName = '') {
+            const modal = document.getElementById('previewModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalHeader = modal.querySelector('.modal-header h3');
+            
+            modalHeader.textContent = fileName || 'Vista Previa';
+            modal.classList.add('active');
+            
+            modalBody.innerHTML = isPDF
+                ? `<iframe src="${content}" style="width:100%; height:70vh; border:none; border-radius: 10px;"></iframe>`
+                : `<img src="${content}" alt="Vista previa" style="max-width:100%; max-height: 70vh; border-radius:10px; display: block; margin: 0 auto;">`;
+        }
+
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('previewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
